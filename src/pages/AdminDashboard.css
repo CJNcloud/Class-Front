@@ -1,0 +1,720 @@
+.admin-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 顶部Header */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.menu-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.menu-toggle:hover {
+  opacity: 0.7;
+}
+
+.menu-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.menu-dots span {
+  width: 4px;
+  height: 4px;
+  background-color: #1890ff;
+  border-radius: 50%;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1890ff;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-number {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.admin-user-role {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.admin-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.admin-avatar-blue {
+  background-color: #1890ff;
+}
+
+/* 内容区域包装器 */
+.admin-content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 左侧导航栏 */
+.admin-sidebar {
+  width: 200px;
+  min-width: 200px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s;
+}
+
+.admin-sidebar.closed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+.admin-sidebar .nav-item {
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #1890ff;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #ffffff;
+}
+
+.admin-sidebar .nav-item:hover {
+  background-color: #f0f0f0;
+  color: #1890ff;
+}
+
+.admin-sidebar .nav-item.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* 主内容区域 */
+.admin-main {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #000000;
+  margin: 0 0 24px 0;
+}
+
+/* 搜索栏 */
+.search-bar-top {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #e6f7ff;
+  color: #333333;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+
+.search-button {
+  width: 40px;
+  height: 40px;
+  background-color: #1890ff;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+}
+
+/* 用户列表表格 */
+.users-table {
+  margin-bottom: 24px;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e5e5;
+  gap: 16px;
+}
+
+.user-avatar-cell {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.user-avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+.avatar-female-pink {
+  background-color: #ff6b9d;
+}
+
+.avatar-male-blue {
+  background-color: #1890ff;
+}
+
+.avatar-female-purple {
+  background-color: #9c27b0;
+}
+
+.avatar-default {
+  background-color: #cccccc;
+}
+
+.user-number {
+  width: 60px;
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.user-id {
+  width: 140px;
+  font-size: 16px;
+  color: #333333;
+}
+
+.user-username {
+  width: 120px;
+  font-size: 16px;
+  color: #333333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-phone {
+  width: 130px;
+  font-size: 16px;
+  color: #333333;
+}
+
+.user-email {
+  flex: 1;
+  min-width: 180px;
+  font-size: 16px;
+  color: #333333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-type {
+  width: 100px;
+  font-size: 16px;
+  color: #333333;
+}
+
+.user-actions {
+  display: flex;
+  gap: 16px;
+  width: 120px;
+}
+
+.action-link {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.modify-link {
+  color: #1890ff;
+}
+
+.modify-link:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+.delete-link {
+  color: #ff4d4f;
+}
+
+.delete-link:hover {
+  color: #ff7875;
+  text-decoration: underline;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666666;
+  font-size: 16px;
+}
+
+/* 分页控件 */
+.pagination-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-number {
+  width: 32px;
+  height: 32px;
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-number:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.pagination-number.active {
+  background-color: #13c2c2;
+  border-color: #13c2c2;
+  color: white;
+}
+
+/* 底部搜索栏 */
+.search-bar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background-color: #ffffff;
+  width: 250px;
+}
+
+.search-input-small {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333333;
+  background: transparent;
+}
+
+.search-input-small::placeholder {
+  color: #999999;
+}
+
+.clear-search {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #666666;
+  transition: color 0.2s;
+}
+
+.clear-search:hover {
+  color: #333333;
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333333;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  transition: color 0.2s;
+  border-radius: 4px;
+}
+
+.modal-close:hover {
+  color: #333333;
+  background-color: #f0f0f0;
+}
+
+.modal-form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333333;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+
+.form-input::placeholder {
+  color: #999999;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.modal-button {
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+.modal-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #333333;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #e8e8e8;
+}
+
+.confirm-button {
+  background-color: #1890ff;
+  color: white;
+}
+
+.confirm-button:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+/* 群聊审核相关样式 */
+
+.group-chat-avatar-cell {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.group-chat-avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+.group-chat-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.group-avatar-pink {
+  background-color: #ff6b9d;
+}
+
+.group-avatar-teal {
+  background-color: #13c2c2;
+}
+
+.group-avatar-purple {
+  background-color: #9c27b0;
+}
+
+.group-avatar-yellow {
+  background-color: #faad14;
+}
+
+.group-avatar-red {
+  background-color: #cf1322;
+}
+
+.group-avatar-default {
+  background-color: #cccccc;
+}
+
+.group-chat-name {
+  width: 120px;
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.group-chat-id {
+  width: 140px;
+  font-size: 16px;
+  color: #333333;
+}
+
+.group-chat-type {
+  width: 100px;
+  font-size: 16px;
+  color: #333333;
+}
+
+.group-chat-member-limit {
+  width: 100px;
+  font-size: 16px;
+  color: #666666;
+}
+
+.group-chat-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 80px;
+  font-size: 16px;
+  color: #666666;
+}
+
+.group-chat-actions {
+  display: flex;
+  gap: 16px;
+  width: 120px;
+}
+
+.approve-link {
+  color: #1890ff;
+}
+
+.approve-link:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+.reject-link {
+  color: #ff4d4f;
+}
+
+.reject-link:hover {
+  color: #ff7875;
+  text-decoration: underline;
+}
+
+/* 群聊审核相关样式 */
+.group-chats-table {
+  margin-bottom: 24px;
+}
+
+.group-chat-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e5e5;
+  gap: 16px;
+}

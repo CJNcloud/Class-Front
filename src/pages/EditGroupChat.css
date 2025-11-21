@@ -1,0 +1,257 @@
+.edit-group-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部 */
+.edit-group-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e5e5;
+  gap: 16px;
+}
+
+.back-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: #e6f7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #bae7ff;
+}
+
+.edit-group-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #000000;
+  margin: 0;
+}
+
+/* 表单内容 */
+.edit-group-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+}
+
+.edit-group-content {
+  display: flex;
+  gap: 60px;
+  flex: 1;
+  margin-bottom: 40px;
+}
+
+.edit-group-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.edit-group-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.form-input {
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid #1890ff;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #40a9ff;
+}
+
+.form-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* 头像上传区域 */
+.avatar-upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.avatar-label {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.avatar-preview {
+  width: 200px;
+  height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e5e5;
+}
+
+.avatar-placeholder {
+  width: 200px;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.image-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 100%);
+}
+
+.image-cloud {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50px;
+}
+
+.image-cloud::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.image-cloud::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  width: 35px;
+  height: 35px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.image-hills {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, #7cb342 0%, #558b2f 100%);
+  clip-path: polygon(0 30%, 25% 20%, 50% 35%, 75% 25%, 100% 30%, 100% 100%, 0 100%);
+}
+
+/* 底部按钮 */
+.edit-group-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.action-button {
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+}
+
+.dismiss-button {
+  background-color: #ffffff;
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.dismiss-button:hover {
+  background-color: #fff1f0;
+}
+
+.pin-button {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+
+.pin-button:hover {
+  background-color: #f5f5f5;
+}
+
+.cancel-button {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+
+.cancel-button:hover {
+  background-color: #f5f5f5;
+}
+
+.save-button {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+
+.save-button:hover {
+  background-color: #f5f5f5;
+}
+
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-button:disabled:hover {
+  background-color: inherit;
+  color: inherit;
+  border-color: inherit;
+}
+
