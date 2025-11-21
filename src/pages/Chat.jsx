@@ -21,7 +21,6 @@ const Chat = () => {
   const [showReportModal, setShowReportModal] = useState(false); // 是否显示举报群聊模态框
   const [reportContent, setReportContent] = useState(''); // 举报内容
   const [submittingReport, setSubmittingReport] = useState(false); // 是否正在提交举报
-  
   // 消息相关状态
   const [messages, setMessages] = useState([]); // 消息列表
   const [loadingMessages, setLoadingMessages] = useState(false); // 加载消息中
@@ -42,7 +41,8 @@ const Chat = () => {
   const wsRef = useRef(null); // WebSocket连接引用
   const reconnectTimeoutRef = useRef(null); // 重连定时器引用
   const [wsConnected, setWsConnected] = useState(false); // WebSocket连接状态
-
+  const groupInfoRef = useRef(groupInfo);
+  const userInfoRef = useRef(userInfo);
   useEffect(() => {
     // 检查用户是否为管理员，如果是则重定向到管理员页面
     if (isAdmin()) {
@@ -54,7 +54,9 @@ const Chat = () => {
     setUserInfo(user);
     console.log(user);
   }, [navigate]);
-
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
   // 获取群聊详细信息（包括群主ID）
   useEffect(() => {
     if (!selectedChatId) {
@@ -82,7 +84,8 @@ const Chat = () => {
 
     fetchGroupInfo();
   }, [selectedChatId]);
-
+useEffect(() => { groupInfoRef.current = groupInfo; }, [groupInfo]);
+  useEffect(() => { userInfoRef.current = userInfo; }, [userInfo]);
   // 格式化时间显示
   const formatTime = (dateString) => {
     if (!dateString) return '';
@@ -115,7 +118,10 @@ const Chat = () => {
     if (!groupInfo || !userInfo) return false;
     const ownerId = groupInfo.created_by_user_id;
     const userId = userInfo.id || userInfo.userId;
-    return ownerId && userId && String(ownerId) === String(userId);
+    // console.log('ownerId',ownerId,'userId',userId);
+    const isOwner = ownerId && userId && String(ownerId) === String(userId);
+    // console.log('isOwner',isOwner);
+    return isOwner;
   };
 
   // 判断消息是否可以撤回（2分钟内或群主）
@@ -278,11 +284,14 @@ const Chat = () => {
 
   // 生成撤回提示消息
   const createRetractNotice = (retractedMessage, retractorName, isRetractorOwner) => {
+    console.log('retractedMessage',retractedMessage);
     const isSenderOwner = isMessageSenderOwner(retractedMessage);
     const senderName = retractedMessage.sender_name || '用户';
     
     let noticeText = '';
-    if (isRetractorOwner && !isSenderOwner) {
+    console.log(isRetractorOwner, isSenderOwner);
+    console.log('hao',isRetractorOwner && (!isSenderOwner));
+    if (isRetractorOwner && (!isSenderOwner)) {
       // 群主撤回非群主的消息
       noticeText = `群主${retractorName}撤回了一条成员消息`;
     } else {
@@ -363,18 +372,7 @@ const Chat = () => {
       });
 
       if (response.ok) {
-        // 获取撤回者信息
-        const currentUser = getUserInfo();
-        const retractorName = currentUser?.username || '用户';
-        const isRetractorOwner = isGroupOwner();
-        
-        // 创建撤回提示消息
-        const retractNotice = createRetractNotice(messageToRetract, retractorName, isRetractorOwner);
-        
-        // 替换原消息为撤回提示
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId ? retractNotice : msg
-        ));
+        console.log('消息撤回成功');
       } else {
         if (response.status === 401) {
           clearUserInfo();
@@ -644,14 +642,20 @@ const Chat = () => {
                 if (!retractedMessage) {
                   return prev;
                 }
-                
-                // 判断撤回者是否是群主
-                const retractorUserId = retractor_id || (userInfo?.id || userInfo?.userId);
-                const isRetractorOwner = groupInfo && retractorUserId && 
-                  String(groupInfo.created_by_user_id) === String(retractorUserId);
+                const currentGroupInfo = groupInfoRef.current;
+                const currentUserInfo = userInfoRef.current;
+                const retractorUserId = retractor_id || (currentUserInfo?.id || currentUserInfo?.userId);
+                // 确保始终为布尔值，避免 groupInfo 为 null 时得到 null
+                console.log('groupInfo',groupInfo,'retractorUserId1',retractorUserId);
+                const isRetractorOwner = Boolean(
+                  currentGroupInfo &&
+                  retractorUserId &&
+                  String(currentGroupInfo.created_by_user_id) === String(retractorUserId)
+              );
                 
                 // 生成撤回提示消息
                 const retractorName = retractor_name || '用户';
+                console.log('isRetractorOwner撤回',isRetractorOwner);
                 const retractNotice = createRetractNotice(retractedMessage, retractorName, isRetractorOwner);
                 
                 // 替换原消息为撤回提示
