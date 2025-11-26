@@ -85,18 +85,44 @@ export const filterHiddenMessages = (groupId, messages) => {
   }
   
   try {
-    const key = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
-    const hiddenMessages = JSON.parse(localStorage.getItem(key) || '{}');
-    const groupHidden = hiddenMessages[groupId];
+    // 检查群聊是否被清空
+    const isChatCleared = isGroupCleared(groupId);
     
-    // 如果整个群聊被清空，隐藏所有消息
-    if (groupHidden === 'ALL_CLEARED') {
-      return [];
+    if (!isChatCleared) {
+      // 如果群聊未被清空，只根据hiddenMessages中的ID过滤
+      const key = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
+      const hiddenMessages = JSON.parse(localStorage.getItem(key) || '{}');
+      const hiddenIds = Array.isArray(hiddenMessages[groupId]) ? hiddenMessages[groupId] : [];
+      return messages.filter(msg => !hiddenIds.includes(msg.id));
+    } else {
+      // 如果群聊已被清空，需要考虑：
+      // 1. 获取清空时间戳
+      const clearTimestamp = getClearTimestamp(groupId);
+      
+      // 2. 获取已存储的隐藏消息ID（清空操作时的消息）
+      const key = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
+      const hiddenMessages = JSON.parse(localStorage.getItem(key) || '{}');
+      const hiddenIds = Array.isArray(hiddenMessages[groupId]) ? hiddenMessages[groupId] : [];
+      
+      // 3. 过滤消息：
+      // - 消息ID在hiddenIds中的（清空操作时存在的消息）隐藏
+      // - 消息发送时间在clearTimestamp之前的隐藏
+      // - 其他消息（清空后新发送的）显示
+      return messages.filter(msg => {
+        // 如果消息ID在隐藏列表中，隐藏它
+        if (hiddenIds.includes(msg.id)) {
+          return false;
+        }
+        
+        // 如果有清空时间戳，且消息发送时间在清空时间之前，隐藏它
+        if (clearTimestamp && msg.sent_at && new Date(msg.sent_at) < new Date(clearTimestamp)) {
+          return false;
+        }
+        
+        // 其他消息显示
+        return true;
+      });
     }
-    
-    // 否则，只隐藏特定ID的消息
-    const hiddenIds = Array.isArray(groupHidden) ? groupHidden : [];
-    return messages.filter(msg => !hiddenIds.includes(msg.id));
   } catch (error) {
     console.error('过滤隐藏消息失败:', error);
     return messages;
@@ -110,28 +136,78 @@ export const filterHiddenMessages = (groupId, messages) => {
  */
 export const clearGroupMessages = (groupId, messageIds = []) => {
   try {
-    const key = getUserSpecificKey(CLEARED_GROUPS_KEY);
-    const clearedGroups = JSON.parse(localStorage.getItem(key) || '[]');
+    // 使用clearedGroups作为标记，表示群聊已被清空
+    const clearedKey = getUserSpecificKey(CLEARED_GROUPS_KEY);
+    const clearedGroups = JSON.parse(localStorage.getItem(clearedKey) || '[]');
     
     if (!clearedGroups.includes(groupId)) {
       clearedGroups.push(groupId);
-      localStorage.setItem(key, JSON.stringify(clearedGroups));
+      localStorage.setItem(clearedKey, JSON.stringify(clearedGroups));
     }
     
-    // 隐藏该群聊的所有当前消息
+    // 同时存储当前可见的消息ID，用于隐藏这些特定消息
     const hiddenKey = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
     const hiddenMessages = JSON.parse(localStorage.getItem(hiddenKey) || '{}');
     
-    // 如果提供了消息ID列表，隐藏这些消息；否则使用ALL_CLEARED标记
-    if (Array.isArray(messageIds) && messageIds.length > 0) {
-      hiddenMessages[groupId] = messageIds;
-    } else {
-      hiddenMessages[groupId] = 'ALL_CLEARED';
-    }
+    // 存储当前所有消息的ID，用于隐藏这些历史消息
+    hiddenMessages[groupId] = Array.isArray(messageIds) ? messageIds : [];
+    
+    // 存储清空操作的时间戳，用于区分清空前后的消息
+    const timestampKey = getUserSpecificKey('clearTimestamps');
+    const clearTimestamps = JSON.parse(localStorage.getItem(timestampKey) || '{}');
+    clearTimestamps[groupId] = new Date().toISOString();
     
     localStorage.setItem(hiddenKey, JSON.stringify(hiddenMessages));
+    localStorage.setItem(timestampKey, JSON.stringify(clearTimestamps));
   } catch (error) {
     console.error('清空群聊记录失败:', error);
+  }
+};
+
+/**
+ * 获取群聊清空时间戳
+ * @param {number} groupId - 群聊ID
+ * @returns {string|null} 清空时间戳，如果群聊未被清空则返回null
+ */
+export const getClearTimestamp = (groupId) => {
+  try {
+    const key = getUserSpecificKey('clearTimestamps');
+    const clearTimestamps = JSON.parse(localStorage.getItem(key) || '{}');
+    return clearTimestamps[groupId] || null;
+  } catch (error) {
+    console.error('获取清空时间戳失败:', error);
+    return null;
+  }
+};
+
+/**
+ * 恢复群聊记录（取消清空）
+ * @param {number} groupId - 群聊ID
+ */
+export const restoreGroupMessages = (groupId) => {
+  try {
+    const key = getUserSpecificKey(CLEARED_GROUPS_KEY);
+    const clearedGroups = JSON.parse(localStorage.getItem(key) || '[]');
+    const filtered = clearedGroups.filter(id => id !== groupId);
+    localStorage.setItem(key, JSON.stringify(filtered));
+    
+    // 移除隐藏标记，直接删除该群聊的所有隐藏消息记录
+    const hiddenKey = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
+    const hiddenMessages = JSON.parse(localStorage.getItem(hiddenKey) || '{}');
+    if (hiddenMessages[groupId]) {
+      delete hiddenMessages[groupId];
+      localStorage.setItem(hiddenKey, JSON.stringify(hiddenMessages));
+    }
+    
+    // 移除清空时间戳
+    const timestampKey = getUserSpecificKey('clearTimestamps');
+    const clearTimestamps = JSON.parse(localStorage.getItem(timestampKey) || '{}');
+    if (clearTimestamps[groupId]) {
+      delete clearTimestamps[groupId];
+      localStorage.setItem(timestampKey, JSON.stringify(clearTimestamps));
+    }
+  } catch (error) {
+    console.error('恢复群聊记录失败:', error);
   }
 };
 
@@ -155,24 +231,24 @@ export const isGroupCleared = (groupId) => {
  * 恢复群聊记录（取消清空）
  * @param {number} groupId - 群聊ID
  */
-export const restoreGroupMessages = (groupId) => {
-  try {
-    const key = getUserSpecificKey(CLEARED_GROUPS_KEY);
-    const clearedGroups = JSON.parse(localStorage.getItem(key) || '[]');
-    const filtered = clearedGroups.filter(id => id !== groupId);
-    localStorage.setItem(key, JSON.stringify(filtered));
+// export const restoreGroupMessages = (groupId) => {
+//   try {
+//     const key = getUserSpecificKey(CLEARED_GROUPS_KEY);
+//     const clearedGroups = JSON.parse(localStorage.getItem(key) || '[]');
+//     const filtered = clearedGroups.filter(id => id !== groupId);
+//     localStorage.setItem(key, JSON.stringify(filtered));
     
-    // 移除隐藏标记
-    const hiddenKey = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
-    const hiddenMessages = JSON.parse(localStorage.getItem(hiddenKey) || '{}');
-    if (hiddenMessages[groupId] === 'ALL_CLEARED') {
-      delete hiddenMessages[groupId];
-      localStorage.setItem(hiddenKey, JSON.stringify(hiddenMessages));
-    }
-  } catch (error) {
-    console.error('恢复群聊记录失败:', error);
-  }
-};
+//     // 移除隐藏标记，直接删除该群聊的所有隐藏消息记录
+//     const hiddenKey = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
+//     const hiddenMessages = JSON.parse(localStorage.getItem(hiddenKey) || '{}');
+//     if (hiddenMessages[groupId]) {
+//       delete hiddenMessages[groupId];
+//       localStorage.setItem(hiddenKey, JSON.stringify(hiddenMessages));
+//     }
+//   } catch (error) {
+//     console.error('恢复群聊记录失败:', error);
+//   }
+// };
 
 /**
  * 恢复单条消息（取消隐藏）
@@ -184,12 +260,7 @@ export const restoreMessage = (groupId, messageId) => {
     const key = getUserSpecificKey(HIDDEN_MESSAGES_KEY);
     const hiddenMessages = JSON.parse(localStorage.getItem(key) || '{}');
     
-    if (hiddenMessages[groupId]) {
-      if (hiddenMessages[groupId] === 'ALL_CLEARED') {
-        // 如果整个群聊被清空，不能单独恢复消息
-        return;
-      }
-      
+    if (Array.isArray(hiddenMessages[groupId])) {
       const filtered = hiddenMessages[groupId].filter(id => id !== messageId);
       if (filtered.length === 0) {
         delete hiddenMessages[groupId];

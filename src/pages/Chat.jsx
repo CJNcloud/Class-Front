@@ -183,9 +183,12 @@ useEffect(() => { groupInfoRef.current = groupInfo; }, [groupInfo]);
         if (response.ok) {
           const data = await response.json();
           const newMessages = Array.isArray(data) ? data : [];
-          // 过滤掉隐藏的消息
+          
+          // 使用更新后的filterHiddenMessages函数处理消息过滤
+          // 该函数现在会基于清空时间戳和隐藏ID列表自动处理消息过滤
           const filteredMessages = filterHiddenMessages(selectedChatId, newMessages);
           setMessages(filteredMessages);
+          
           setSkip(newMessages.length);
           setHasMore(newMessages.length === limit);
           setTimeout(() => {
@@ -517,9 +520,12 @@ useEffect(() => { groupInfoRef.current = groupInfo; }, [groupInfo]);
       if (response.ok) {
         const data = await response.json();
         const newMessages = Array.isArray(data) ? data : [];
-        // 过滤掉隐藏的消息
+        
+        // 使用更新后的filterHiddenMessages函数处理消息过滤
+        // 该函数现在会基于清空时间戳和隐藏ID列表自动处理消息过滤
         const filteredMessages = filterHiddenMessages(selectedChatId, newMessages);
         setMessages(prev => [...prev, ...filteredMessages]);
+        
         setSkip(prev => prev + newMessages.length);
         setHasMore(newMessages.length === limit);
       } else {
@@ -615,10 +621,14 @@ useEffect(() => { groupInfoRef.current = groupInfo; }, [groupInfo]);
                   }
                 }
                 
-                // 检查消息是否被隐藏
-                const filtered = filterHiddenMessages(selectedChatId, [newMessage]);
-                if (filtered.length === 0) {
-                  return prev; // 消息被隐藏，不添加
+                // 使用更新后的filterHiddenMessages函数处理新消息
+                // 该函数会基于清空时间戳和隐藏ID列表自动处理消息过滤
+                // 由于我们只有一条消息，创建一个临时数组来应用过滤
+                const filteredMessages = filterHiddenMessages(selectedChatId, [newMessage]);
+                
+                // 如果消息被过滤掉（返回空数组），则不添加
+                if (filteredMessages.length === 0) {
+                  return prev;
                 }
                 
                 // 添加新消息

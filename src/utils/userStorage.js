@@ -42,7 +42,21 @@ export const isAdmin = () => {
  */
 export const clearUserInfo = () => {
   try {
+    // 获取当前用户ID，用于清除相关的消息和群聊数据
+    const userInfo = getUserInfo();
+    const userId = userInfo?.id || userInfo?.userId;
+    
+    // 清除用户基本信息
     localStorage.removeItem(USER_STORAGE_KEY);
+    
+    // 清除消息隐藏记录
+    if (userId) {
+      const hiddenMessagesKey = `hiddenMessages_${userId}`;
+      const clearedGroupsKey = `clearedGroups_${userId}`;
+      
+      localStorage.removeItem(hiddenMessagesKey);
+      localStorage.removeItem(clearedGroupsKey);
+    }
   } catch (error) {
     console.error('清除用户信息失败:', error);
   }
