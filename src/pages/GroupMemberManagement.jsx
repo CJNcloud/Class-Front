@@ -566,9 +566,60 @@ const GroupMemberManagement = () => {
   };
 
   // 踢出成员
+  // const handleRemoveMember = async (memberUserId) => {
+  //   if (!memberUserId) {
+  //     alert('无效的用户ID');
+  //     return;
+  //   }
+
+  //   if (!window.confirm(`确定要将用户 ${String(memberUserId).padStart(10, '0')} 踢出群聊吗？`)) {
+  //     return;
+  //   }
+
+  //   setProcessingMemberId(memberUserId);
+  //   try {
+  //     const response = await fetch(
+  //       `http://127.0.0.1:8000/api/groups/${groupId}/members/${memberUserId}`,
+  //       {
+  //         method: 'DELETE',
+  //         headers: getAuthHeadersWithUserId(),
+  //       }
+  //     );
+
+  //     if (response.ok) {
+  //       alert('已踢出成员');
+  //       // 刷新成员列表
+  //       fetchMembers();
+  //     } else {
+  //       // 如果是401未授权，清除用户信息并跳转到登录页
+  //       if (response.status === 401) {
+  //         clearUserInfo();
+  //         navigate('/login');
+  //         return;
+  //       }
+        
+  //       const errorData = await response.json().catch(() => ({}));
+  //       const errorMessage = errorData.message || errorData.detail || errorData.error || '踢出成员失败，请稍后重试';
+  //       alert(errorMessage);
+  //       console.error('踢出成员失败:', errorData);
+  //     }
+  //   } catch (error) {
+  //     console.error('踢出成员时发生错误:', error);
+  //     alert('踢出成员时发生错误，请稍后重试');
+  //   } finally {
+  //     setProcessingMemberId(null);
+  //   }
+  // };
   const handleRemoveMember = async (memberUserId) => {
     if (!memberUserId) {
       alert('无效的用户ID');
+      return;
+    }
+
+    // 防止通过该接口移除自己（自行退出请使用退出按钮）
+    const currentUserId = currentUser?.id || currentUser?.userId;
+    if (String(memberUserId) === String(currentUserId)) {
+      alert('请使用退出群聊功能退出；群主需先转让群主后才能退出。');
       return;
     }
 
@@ -611,7 +662,69 @@ const GroupMemberManagement = () => {
     }
   };
 
+  // 退出群聊（供本人使用；群主需先转让群主后才能退出）
+  const handleLeaveGroup = async (memberUserId) => {
+    if (!memberUserId) {
+      alert('无效的用户ID');
+      return;
+    }
+
+    const currentUserId = currentUser?.id || currentUser?.userId;
+    if (!currentUserId || String(memberUserId) !== String(currentUserId)) {
+      alert('只能退出自己的账号');
+      return;
+    }
+
+    // 如果是群主，阻止退出并提示先转让
+    if (isOwner()) {
+      alert('您是群主，请先将群主转让给其他成员后再退出群聊。');
+      return;
+    }
+
+    if (!window.confirm('确定要退出该群聊吗？退出后需要重新申请才能加入。')) {
+      return;
+    }
+
+    setProcessingMemberId(memberUserId);
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/groups/${groupId}/members/${memberUserId}`,
+        {
+          method: 'DELETE',
+          headers: getAuthHeadersWithUserId(),
+        }
+      );
+
+      if (response.ok) {
+        alert('已退出群聊');
+        // 退出后返回聊天列表
+        const chatId = searchParams.get('chatId');
+        if (chatId) {
+          navigate(`/chat?chatId=${chatId}`);
+        } else {
+          navigate('/chat');
+        }
+      } else {
+        if (response.status === 401) {
+          clearUserInfo();
+          navigate('/login');
+          return;
+        }
+
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.detail || errorData.error || '退出群聊失败，请稍后重试';
+        alert(errorMessage);
+        console.error('退出群聊失败:', errorData);
+      }
+    } catch (error) {
+      console.error('退出群聊时发生错误:', error);
+      alert('退出群聊时发生错误，请稍后重试');
+    } finally {
+      setProcessingMemberId(null);
+    }
+  };
   return (
+    
     <div className="group-member-container">
       {/* 头部 */}
       <div className="group-member-header">
@@ -690,6 +803,47 @@ const GroupMemberManagement = () => {
                                   <X size={16} />
                                 </button>
                               </div>
+                              {/* <div className="member-actions">
+                                  {showActions && (
+                                    <>
+                                      <button
+                                        className="action-button transfer-button"
+                                        onClick={() => handleTransfer(userId)}
+                                        disabled={processingMemberId === userId}
+                                        title="转让群主"
+                                      >
+                                        {processingMemberId === userId ? '处理中...' : '转让'}
+                                      </button>
+                                      <button
+                                        className="action-button remove-button"
+                                        onClick={() => handleRemoveMember(userId)}
+                                        disabled={processingMemberId === userId}
+                                        title="踢出群聊"
+                                      >
+                                        {processingMemberId === userId ? '处理中...' : '踢出'}
+                                      </button>
+                                    </>
+                                  )}
+                                  {isCurrentUserMember && (
+                                    <button
+                                      className="action-button leave-button"
+                                      onClick={() => handleLeaveGroup(userId)}
+                                      disabled={processingMemberId === userId}
+                                      title="退出群聊"
+                                    >
+                                      {processingMemberId === userId ? '处理中...' : '退出'}
+                                    </button>
+                                  )}
+                                  {!isCurrentUserMember && (
+                                    <button
+                                      className="action-button report-button"
+                                      onClick={() => handleOpenReportModal(userId)}
+                                      title="举报成员"
+                                    >
+                                      <Flag size={16} />
+                                    </button>
+                                  )}
+                              </div> */}
                             </div>
                           );
                         })}
@@ -820,7 +974,7 @@ const GroupMemberManagement = () => {
                                 </div>
                                 <div className="member-violation">违规记录: {violationCount}次</div>
                               </div>
-                              <div className="member-actions">
+                              {/* <div className="member-actions">
                                 {showActions && (
                                   <>
                                     <button
@@ -840,7 +994,7 @@ const GroupMemberManagement = () => {
                                       {processingMemberId === userId ? '处理中...' : '踢出'}
                                     </button>
                                   </>
-                                )}
+                                )}                       
                                 {!isCurrentUserMember && (
                                   <button
                                     className="action-button report-button"
@@ -849,7 +1003,49 @@ const GroupMemberManagement = () => {
                                   >
                                     <Flag size={16} />
                                   </button>
+                                  
                                 )}
+                              </div> */}
+                              <div className="member-actions">
+                                  {showActions && (
+                                    <>
+                                      <button
+                                        className="action-button transfer-button"
+                                        onClick={() => handleTransfer(userId)}
+                                        disabled={processingMemberId === userId}
+                                        title="转让群主"
+                                      >
+                                        {processingMemberId === userId ? '处理中...' : '转让'}
+                                      </button>
+                                      <button
+                                        className="action-button remove-button"
+                                        onClick={() => handleRemoveMember(userId)}
+                                        disabled={processingMemberId === userId}
+                                        title="踢出群聊"
+                                      >
+                                        {processingMemberId === userId ? '处理中...' : '踢出'}
+                                      </button>
+                                    </>
+                                  )}
+                                  {isCurrentUserMember && (
+                                    <button
+                                      className="action-button leave-button"
+                                      onClick={() => handleLeaveGroup(userId)}
+                                      disabled={processingMemberId === userId}
+                                      title="退出群聊"
+                                    >
+                                      {processingMemberId === userId ? '处理中...' : '退出'}
+                                    </button>
+                                  )}
+                                  {!isCurrentUserMember && (
+                                    <button
+                                      className="action-button report-button"
+                                      onClick={() => handleOpenReportModal(userId)}
+                                      title="举报成员"
+                                    >
+                                      <Flag size={16} />
+                                    </button>
+                                  )}
                               </div>
                             </div>
                           );

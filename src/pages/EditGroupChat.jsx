@@ -10,6 +10,7 @@ const EditGroupChat = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [formData, setFormData] = useState({
+    id: -1,
     name: '',
     group_type: '',
     note: '',
@@ -63,6 +64,7 @@ const EditGroupChat = () => {
           
           // 设置表单数据
           setFormData({
+            id: data.id || -1,
             name: data.name || '',
             group_type: data.group_type || '',
             note: data.note || '',
@@ -373,6 +375,11 @@ const EditGroupChat = () => {
                 onChange={handleInputChange}
                 placeholder="请输入群聊备注"
               />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">群聊id:</label>
+              <div>{formData.id}</div>
             </div>
 
             <div className="form-group">
