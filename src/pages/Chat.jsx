@@ -293,10 +293,10 @@ useEffect(() => { groupInfoRef.current = groupInfo; }, [groupInfo]);
     console.log('hao',isRetractorOwner && (!isSenderOwner));
     if (isRetractorOwner && (!isSenderOwner)) {
       // 群主撤回非群主的消息
-      noticeText = `群主${retractorName}撤回了一条成员消息`;
+      noticeText = `撤回了一条消息`;
     } else {
       // 普通撤回
-      noticeText = `${senderName}撤回了一条消息`;
+      noticeText = `撤回了一条消息`;
     }
     
     return {
